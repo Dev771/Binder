@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
-import { View, PanResponder, Text, Animated, Button, Pressable, Image } from 'react-native'
+import { useEffect, useState } from 'react'
+import { View, Image } from 'react-native'
 
 import ViewProfile from '../../Components/ViewProfile/ViewProfile';
 import TinderPng from '../../public/img/TinderIconColored.png';
@@ -12,7 +12,7 @@ const Home = ({ navigation }) => {
   const [ProfileList, setProfileList] = useState(["1", "2", "3"]);
   const [userPrefrence, setUserPrefrence] = useState(UserPrefrence.UNDECIDED);
 
-  const { panHandler, position, rotation, choiceMade } = usePanHandler();
+  const { panHandler, position, rotation, choiceMade, resetPosition } = usePanHandler();
 
 
   useEffect(() => {
@@ -31,11 +31,12 @@ const Home = ({ navigation }) => {
           position.removeListener(id);
       }
     }
-  }, [position]);
+  }, [position, userPrefrence]);
 
   useEffect(() => {
     if(choiceMade) {
       setProfileList(prevList => prevList.slice(1));
+      resetPosition();
     }
   }, [choiceMade])
 
@@ -48,7 +49,7 @@ const Home = ({ navigation }) => {
             <ViewProfile 
               panHandler={i===0 ? panHandler : {}} 
               userPrefrence={i=== 0 ? userPrefrence : UserPrefrence.UNDECIDED} 
-              position={i===0 ? position : useRef(new Animated.ValueXY()).current} 
+              position={i===0 ? position : {x: 0, y: 0}} 
               rotation={i===0 ? rotation : '0deg'} 
               zIndex={10-i} 
               key={a}

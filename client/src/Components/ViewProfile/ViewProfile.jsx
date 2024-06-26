@@ -1,4 +1,4 @@
-import { Animated, Image, ImageBackground, Pressable, PanResponder, Text, TouchableHighlight, View } from 'react-native'
+import { Animated, Image, ImageBackground, Pressable, Text, TouchableHighlight, View } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient';
 
 import ProfileImage from '../../public/img/ProfileImage2.webp';
@@ -9,7 +9,7 @@ import Reject from '../../public/img/Reject.png';
 import Star from '../../public/img/Star.png';
 import Like from '../../public/img/Like.png';
 import styles from './styles';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import ImageCarasoulBar from '../ImageCarasoulBar/ImageCarasoulBar';
 
 import UserPrefrence from '../../enums/UserPrefrence';
@@ -17,7 +17,7 @@ import UserPrefrence from '../../enums/UserPrefrence';
 const ViewProfile = ({ zIndex, name, panHandler, position, rotation, userPrefrence }) => {
     
     let buttonRef = useRef(null);
-
+    let touchTimeOut = useRef(null);
 
     const OptionButtons = [
         { type: "Reverse", color: '#F3D677', icon: Reverse },
@@ -29,6 +29,7 @@ const ViewProfile = ({ zIndex, name, panHandler, position, rotation, userPrefren
 
     const [currentImage, setCurrentImage] = useState(0);
     const [buttonLayout, setButtonLayout] = useState({ width: 0, height: 0 });
+    const [longPress, setLongPress] = useState(false);
 
     const [Images, setImages] = useState([ProfileImage, ProfileImage2, ProfileImage]);
 
@@ -50,14 +51,34 @@ const ViewProfile = ({ zIndex, name, panHandler, position, rotation, userPrefren
         }
     }
 
+    const handleTouchStart = () => {
+        buttonRef.current = setTimeout(() => {
+            setLongPress(false);
+        }, 10000);
+    }
+
+    const handleTouchMove = () => {
+        touchTimeOut.current = setTimeout(() => {
+            setLongPress(true);
+        }, 100);
+    }
+
+    const handlePressOut = () => {
+        setLongPress(false);
+        clearTimeout(touchTimeOut.current);
+    }
+
     return (
         <Animated.View 
-            {...panHandler}
+            {...(longPress ? panHandler : {})}
             style={[styles.main, { zIndex, padding: 0, transform: [{translateX: position.x}, {translateY: position.y}, { rotateY: rotation }] }]} 
         >
             <Pressable 
                 ref={buttonRef} 
                 onPress={handleClick}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onPressOut={handlePressOut}
                 onLayout={handleLayout} 
                 style={{ flex: 1, width: '100%', alignItems: 'center' }} 
             >   
@@ -77,7 +98,7 @@ const ViewProfile = ({ zIndex, name, panHandler, position, rotation, userPrefren
                     <LinearGradient colors={["transparent", '#000000']} locations={[.3, 1]} style={{ flex: 1, justifyContent: 'flex-end', paddingHorizontal: 20, paddingVertical: 30, gap: 20 }}>
                         <View>
                             <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 15 }}>
-                                <Text style={[styles.text, styles.ProfileUserName]}>Rahul</Text>
+                                <Text style={[styles.text, styles.ProfileUserName]}>{name}</Text>
                                 <Text style={[styles.text, styles.ProfilleUserAge]} >29</Text>
                             </View>
                             <View style={{ gap: 3 }}>

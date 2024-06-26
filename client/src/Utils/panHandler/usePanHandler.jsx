@@ -1,5 +1,5 @@
 import { useRef, useState } from "react"
-import { Alert, Animated, PanResponder } from "react-native"
+import { Animated, PanResponder } from "react-native"
 
 const usePanHandler = () => {
     
@@ -7,8 +7,12 @@ const usePanHandler = () => {
     const position = useRef(new Animated.ValueXY()).current;
     const rotation = position.x.interpolate({
         inputRange: [-200, 0, 200],
-        outputRange: ["-50deg", "0deg", "50deg"]
+        outputRange: ["-30deg", "0deg", "30deg"]
     });
+
+    const resetPosition = () => {
+        position.setValue({ x: 0, y: 0 });
+    }
     
     const panResponse = useRef(
         PanResponder.create({
@@ -26,11 +30,10 @@ const usePanHandler = () => {
                     toValue: { x: 0, y: 0 },
                     useNativeDriver: false
                 }).start()
-
-                if(Math.abs(gestureState.dx) > 150) {
+                if(Math.abs(gestureState.dx) > 100) {
                     setChoiceMade(true);
                 }
-                setTimeout(() => setChoiceMade(false), 1000);
+                setTimeout(() => setChoiceMade(false), 200);
             },
             onPanResponderTerminate: () => {
                 Animated.spring(position, {
@@ -41,7 +44,7 @@ const usePanHandler = () => {
         })
     ).current;
 
-    return { panHandler: panResponse.panHandlers, position, rotation, choiceMade };
+    return { panHandler: panResponse.panHandlers, position, rotation, choiceMade, resetPosition };
 
 }
 
